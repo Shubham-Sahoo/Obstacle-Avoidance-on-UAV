@@ -68,6 +68,8 @@ export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:~/Firmware
 roslaunch local_planner local_planner_stereo.launch
 ```
 
+## Result Output : 
+![](?raw=true)
 
 
 
