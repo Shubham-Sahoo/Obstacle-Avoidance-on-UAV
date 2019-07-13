@@ -14,8 +14,12 @@ catkin_make
 Now clone the packages to your desired directory.
 ```
 cd (Your directory)
-git clone https://github.com/reyanshsolis/aerial_robotics.git
+https://github.com/Shubham-Sahoo/Drone_from_Scratch.git
 ```
+
+Install the Firmware package in your companion system from - https://github.com/PX4/avoidance
+ 
+Make Sure that Gazebo is already installed in your system.
 
 Now copy the folders from aerial_robotics/src/ folder into ~/catkin_ws/src/ and compile it
 
@@ -28,11 +32,23 @@ source ~/catkin_ws/devel/setup.bash
 
 If you don't see any error after executing catkin_make then you're ready to fly autonomously 
 
-Now to execute simulation on Gazebo follow the commands
+### Now to execute simulation on Gazebo, follow the commands
 
 ```
+cd ~/Firmware/
+export GAZEBO_RESOURCE_PATH=/usr/share/(gazebo-version)
+DONT_RUN=1 make px4_sitl_default gazebo
+source ~/catkin_ws/devel/setup.bash 
+source Tools/setup_gazebo.bash $(pwd) $(pwd)/build/px4_sitl_default
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)
+export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)/Tools/sitl_gazebo
+roslaunch px4 posix_sitl.launch
+```
 
+##### In another terminal 
 
+```
+roslaunch mavros px4.launch fcu_url:="udp://:14540@127.0.0.1:14557"
 ```
 
 
