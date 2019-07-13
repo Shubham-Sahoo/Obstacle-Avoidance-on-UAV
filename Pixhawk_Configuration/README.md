@@ -1,4 +1,4 @@
-##Parameter    -   Value   -      Description
+## Parameter    -   Value   -      Description
 
 CBRK_GPSFAIL - 240024 - Allows flight without GPS-data.
 
