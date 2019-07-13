@@ -1,6 +1,6 @@
 ## Parameter    -   Value   -      Description
 
-### CBRK_GPSFAIL ##### - 240024 - Allows flight without GPS-data.
+CBRK_GPSFAIL - 240024 - Allows flight without GPS-data.
 
 CBRK_IOSAFETY- 22027 - Allows flight with I/O connections.
 
