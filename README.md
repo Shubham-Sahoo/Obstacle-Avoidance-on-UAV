@@ -51,5 +51,26 @@ roslaunch px4 posix_sitl.launch
 roslaunch mavros px4.launch fcu_url:="udp://:14540@127.0.0.1:14557"
 ```
 
+This will place a drone on the gazebo simulator which can be controlled through mavros.
+
+
+Now to use the Avoidance Package in simulator close all the terminals and relaunch a new terminal
+
+```
+cd ~/Firmware/
+export QT_X11_NO_MITSHM=1
+make px4_sitl_default gazebo
+```
+Stop the code by pressing ctrl-C 
+```
+. ~/Firmware/Tools/setup_gazebo.bash ~/Firmware ~/Firmware/build/px4_sitl_default
+export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:~/Firmware
+roslaunch local_planner local_planner_stereo.launch
+```
+
+
+
+
+
 
 
