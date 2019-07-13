@@ -23,6 +23,16 @@ Now copy the folders from aerial_robotics/src/ folder into ~/catkin_ws/src/ and 
 cd ~/catkin_ws/
 rosdep install --from-paths src --ignore-src -r -y
 catkin_make
+source ~/catkin_ws/devel/setup.bash
+```
+
+If you don't see any error after executing catkin_make then you're ready to fly autonomously 
+
+Now to execute simulation on Gazebo follow the commands
+
+```
+
+
 ```
 
 
