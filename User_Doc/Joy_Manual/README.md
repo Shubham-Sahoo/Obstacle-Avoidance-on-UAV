@@ -1,4 +1,4 @@
-# Drone_joynode
+# Joy_Drone
 ### Integration of X9D Taranis Joystick with ROS and with Complete System.
 
 [ROS JOY NODE](http://wiki.ros.org/joy)

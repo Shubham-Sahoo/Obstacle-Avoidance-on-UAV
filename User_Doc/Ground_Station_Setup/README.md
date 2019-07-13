@@ -1,4 +1,4 @@
-# Aerial_Robotics
+# Drone
 
 ### Ground Station Setup
 
