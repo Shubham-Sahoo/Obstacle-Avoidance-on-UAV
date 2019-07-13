@@ -69,7 +69,7 @@ roslaunch local_planner local_planner_stereo.launch
 ```
 
 ## Result Output : 
-![](?raw=true)
+![](https://github.com/Shubham-Sahoo/Drone_from_Scratch/blob/kinetic/Local_planner_output.gif?raw=true)
 
 
 
