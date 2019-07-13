@@ -1,3 +1,7 @@
+All the configurations is listed in the document attached.
+
+These parameters should be checked before attempting autonomous indoor flying.
+
 ## Parameter    -   Value   -      Description
 
 CBRK_GPSFAIL - 240024 - Allows flight without GPS-data.
