@@ -1,0 +1,37 @@
+<launch>
+
+    <arg name="world_file_name"    default="simple_obstacle" />
+    <arg name="world_path" default="$(find avoidance)/sim/worlds/$(arg world_file_name).world" />
+    <arg name="pointcloud_topics" default="[/output1,/output2,/output3,/output4]"/>
+
+    <!-- Define a static transform from a camera internal frame to the fcu for every camera used -->
+    <node pkg="tf" type="static_transform_publisher" name="camera_front_depth_frame"
+          args="0 0.05 0.055 0 0 0 fcu camera_front_depth_frame 10"/>
+    <node pkg="tf" type="static_transform_publisher" name="camera_back_depth_frame"
+          args="0 -0.05 0.055 -3.14 0 0 fcu camera_back_depth_frame 10"/> 
+    <node pkg="tf" type="static_transform_publisher" name="camera_right_depth_frame"
+          args="0.06 0 0.11 -1.57 0 0 fcu camera_right_depth_frame 10"/>
+    <node pkg="tf" type="static_transform_publisher" name="camera_left_depth_frame"
+          args="-0.06 0 0.11 1.57 0 0 fcu camera_left_depth_frame 10"/>
+
+    <!-- Launch PX4 and mavros -->
+    <include file="$(find avoidance)/launch/avoidance_sitl_mavros.launch" >
+        <arg name="model" value="iris_depth_camera_3" />
+        <arg name="world_path" value="$(arg world_path)" />
+    </include>
+
+    <!-- Load custom console configuration -->
+    <env name="ROSCONSOLE_CONFIG_FILE" value="$(find local_planner)/resource/cus1tom_rosconsole.conf"/>
+
+    <!-- Launch local planner -->
+    <node name="local_planner_node" pkg="local_planner" type="local_planner_node" output="screen">
+        <param name="goal_x_param" value="17" />
+        <param name="goal_y_param" value="15"/>
+        <param name="goal_z_param" value="3" />
+        <rosparam param="pointcloud_topics" subst_value="True">$(arg pointcloud_topics)</rosparam>
+        <param name="world_name" value="$(find avoidance)/sim/worlds/$(arg world_file_name).yaml" />
+    </node>
+
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find local_planner)/resource/local_planner.rviz" />
+
+</launch>

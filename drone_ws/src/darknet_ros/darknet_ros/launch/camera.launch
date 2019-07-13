@@ -1,0 +1,6 @@
+<launch>
+	
+	<remap from="/camera/color/image_raw" to="/camera/rgb/image_raw"/>	
+	<include file="$(find realsense2_camera)/launch/rs_camera.launch"/>
+</launch>
+	

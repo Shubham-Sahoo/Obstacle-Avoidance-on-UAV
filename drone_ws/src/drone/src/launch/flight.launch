@@ -1,0 +1,19 @@
+<launch>
+	<!-- Launch Mavros commands -->
+	<arg name="mode" default="-b 4"/>
+	<node pkg="$(find mavros)" type="mavsys" name="mavsys"> 
+		<param name="mode" value="$(arg mode)"/>
+	</node>
+	<arg name="a" default="0"/>
+	<node pkg="$(find mavros)" type="mavsafety" name="mavsafety">
+		<param name="arm" value="$(arg a)"/>
+	</node>
+	<arg name="takeoffcur" default="0 0 1"/>
+	<node pkg="$(find mavros)" type="mavcmd" name="mavcmd">
+		<param name="takeoffcur" value="$(arg takeoffcur)"/>
+	</node>
+	<node pkg="$(find mavros)" type="mavsafety" name="mavsafety">
+                <param name="disarm" value="$(eval not a"/)>
+        </node>
+</launch>
+	

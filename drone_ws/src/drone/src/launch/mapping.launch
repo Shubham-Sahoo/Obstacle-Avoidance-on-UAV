@@ -1,0 +1,110 @@
+<launch>
+
+  <!-- Multi-cameras demo with 2 D435 -->
+
+  <!-- Choose visualization -->
+  <arg name="rviz"       default="false" />
+  <arg name="rtabmapviz" default="true" /> 
+
+  <!-- Cameras -->
+  <include file="$(find realsense_camera)/launch/zr300_nodelet_rgdb.launch">
+    <arg name="camera" value="camera1" />
+    <arg name="serial_no" value="1111111111" />
+  </include>
+
+  <include file="$(find realsense_camera)/launch/zr300_nodelet_rgdb.launch">
+    <arg name="camera" value="camera2" />
+    <arg name="serial_no" value="2222222222" />
+  </include>
+
+  <!-- Frames: Cameras are placed at 90 degrees, clockwise -->
+  <node pkg="tf" type="static_transform_publisher" name="base_to_camera1_tf"
+      args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link /camera1_link 100" />
+  <node pkg="tf" type="static_transform_publisher" name="base_to_camera2_tf"
+      args="-0.1325 -0.1975 0.0 -1.570796327 0.0 0.0 /base_link /camera2_link 100" />
+
+   <!-- sync rgb/depth images per camera -->
+   <group ns="camera1">
+    <node pkg="nodelet" type="nodelet" name="nodelet_manager1" args="manager"/>
+    <node pkg="nodelet" type="nodelet" name="pointcloud_to_depthimage1" args="load rtabmap_ros/pointcloud_to_depthimage nodelet_manager1">
+      <remap from="cloud"           to="depth/points"/>           <!-- input -->
+      <remap from="camera_info"     to="rgb/camera_info"/>        <!-- input -->
+      <remap from="image_raw"       to="depth/points/image_raw"/> <!-- output 16bits -->
+      <remap from="image"           to="depth/points/image"/>     <!-- output 32bits -->
+      <param name="approx"          value="false"/>
+      <param name="fill_holes_size" value="2"/>
+    </node>
+    <node pkg="nodelet" type="nodelet" name="rgbd_sync1" args="load rtabmap_ros/rgbd_sync nodelet_manager1">
+      <remap from="rgb/image"       to="rgb/image_rect_color"/>
+      <remap from="depth/image"     to="depth/points/image_raw"/>
+      <remap from="rgb/camera_info" to="rgb/camera_info"/>
+      <param name="approx"          value="false"/>
+    </node>
+   </group>
+   <group ns="camera2">
+    <node pkg="nodelet" type="nodelet" name="nodelet_manager2" args="manager"/>
+    <node pkg="nodelet" type="nodelet" name="pointcloud_to_depthimage2" args="load rtabmap_ros/pointcloud_to_depthimage nodelet_manager2">
+      <remap from="cloud"           to="depth/points"/>           <!-- input -->
+      <remap from="camera_info"     to="rgb/camera_info"/>        <!-- input -->
+      <remap from="image_raw"       to="depth/points/image_raw"/> <!-- output 16bits -->
+      <remap from="image"           to="depth/points/image"/>     <!-- output 32bits -->
+      <param name="approx"          value="false"/>
+      <param name="fill_holes_size" value="2"/>
+    </node>
+    <node pkg="nodelet" type="nodelet" name="rgbd_sync2" args="load rtabmap_ros/rgbd_sync nodelet_manager2">
+      <remap from="rgb/image"       to="rgb/image_rect_color"/>
+      <remap from="depth/image"     to="depth/points/image_raw"/>
+      <remap from="rgb/camera_info" to="rgb/camera_info"/>
+      <param name="approx"          value="false"/>
+    </node>
+   </group>
+
+  <group ns="rtabmap">
+
+    <!-- Odometry -->
+    <node pkg="rtabmap_ros" type="rgbd_odometry" name="rgbd_odometry" output="screen">
+      <remap from="rgbd_image0"       to="/camera1/rgbd_image"/>
+      <remap from="rgbd_image1"       to="/camera2/rgbd_image"/>
+
+      <param name="subscribe_rgbd"           type="bool"   value="true"/>
+      <param name="frame_id"                 type="string" value="base_link"/>
+      <param name="rgbd_cameras"             type="int"    value="2"/>
+      <param name="Vis/EstimationType"       type="string" value="0"/> <!-- should be 0 for multi-cameras -->
+    </node>
+
+    <!-- Visual SLAM (robot side) -->
+    <!-- args: "delete_db_on_start" and "udebug" -->
+    <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
+      <param name="subscribe_depth"  type="bool"   value="false"/>
+      <param name="subscribe_rgbd"   type="bool"   value="true"/>
+      <param name="rgbd_cameras"     type="int"    value="2"/>
+      <param name="frame_id"         type="string" value="base_link"/>
+      <param name="gen_scan"         type="bool"   value="true"/>
+      <param name="map_negative_poses_ignored" type="bool"   value="false"/>        <!-- refresh grid map even if we are not moving-->
+      <param name="map_negative_scan_empty_ray_tracing" type="bool" value="false"/> <!-- don't fill empty space between the generated scans-->
+
+      <remap from="rgbd_image0"       to="/camera1/rgbd_image"/>
+      <remap from="rgbd_image1"       to="/camera2/rgbd_image"/>
+
+      <param name="Grid/FromDepth"     type="string" value="false"/>
+      <param name="Vis/EstimationType" type="string" value="0"/> <!-- should be 0 for multi-cameras -->
+    </node>
+
+    <!-- Visualisation RTAB-Map -->
+    <node if="$(arg rtabmapviz)" pkg="rtabmap_ros" type="rtabmapviz" name="rtabmapviz" args="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" output="screen">
+      <param name="subscribe_depth"  type="bool"   value="false"/>
+      <param name="subscribe_rgbd"   type="bool"   value="true"/>
+      <param name="subscribe_odom_info" type="bool"   value="true"/>
+      <param name="frame_id"            type="string" value="base_link"/>
+      <param name="rgbd_cameras"       type="int"    value="2"/>
+
+      <remap from="rgbd_image0"       to="/camera1/rgbd_image"/>
+      <remap from="rgbd_image1"       to="/camera2/rgbd_image"/>
+    </node>
+
+  </group>
+
+  <!-- Visualization RVIZ -->
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(find rtabmap_ros)/launch/config/rgbd.rviz"/>
+
+</launch>
